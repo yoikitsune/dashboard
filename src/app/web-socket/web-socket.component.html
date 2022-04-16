@@ -1,0 +1,5 @@
+<input placeholder="Send a message..." [formControl]="msgCtrl">
+<button (click)="send()">Send</button>
+<ul>
+  <li *ngFor="let message of messages">{{ message }}</li>
+</ul>

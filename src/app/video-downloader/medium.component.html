@@ -1,0 +1,27 @@
+<div class="leftside"><img src="{{ medium.thumbnail }}" height="52px"></div>
+<div class="main">
+  <div class="top" >
+    <h3 class="title">{{medium.title}}</h3>
+    <mat-icon (click)="media.delete(medium.url)" [inline]="true">delete</mat-icon>
+  </div>
+  <mat-progress-bar mode="determinate" [value]="medium.status.percentage"></mat-progress-bar>
+  <div [ngSwitch]="medium.status.state">
+    <p *ngSwitchCase="'noformat'" class="state">
+      <span class="action" (click)="edit()">Selectionner</span> - Pas de format selectionné
+    </p>
+    <p *ngSwitchCase="'init'" class="state" >
+      <span class="action" (click)="medium.stopDownload()">Stopper</span>
+      - {{ medium.status.label }}
+    </p>
+    <p *ngSwitchCase="'paused'" class="state" >
+      <span class="action" (click)="medium.startDownload()">Continuer</span>
+      - Téléchargement en pause ( {{medium.status.percentage}}% )
+    </p>
+    <p *ngSwitchCase="'downloading'" class="state" >
+      <span class="action" (click)="medium.stopDownload()">Stopper</span>
+      - Téléchargement de {{ medium.status.size }} - reste {{ medium.status.ETA }} - {{ medium.status.speed }}
+    </p>
+    <p *ngSwitchCase="'downloaded'" class="state" >Téléchargement terminé</p>
+  </div>
+
+</div>

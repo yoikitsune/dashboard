@@ -1,0 +1,35 @@
+mat-icon {
+  cursor: pointer;
+}
+
+.mat-progress-bar {
+  height: 10px;
+}
+
+.leftside {
+  float : left;
+  width: 90px;
+}
+
+.top mat-icon {
+  float : right;
+}
+.main  {
+  margin-left: 90px;
+  text-align: left;
+  padding : 0 7px;
+}
+
+.title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0;
+  line-height: 22px;
+  width: 95%;
+  display: inline-block;}
+
+.action {
+  color : lightblue;
+  cursor: pointer;
+}

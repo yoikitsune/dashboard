@@ -1,0 +1,20 @@
+<mat-tab-group mat-align-tabs="start" [selectedIndex]="selected.value"
+               (selectedIndexChange)="tabChanged($event)">
+  <mat-tab label="Media">
+    <div class="container">
+      <app-medium *ngFor="let medium of media.media | keyvalue"
+                  [medium]="medium.value"
+                  (parent)="exec ($event)">
+      </app-medium>
+    </div>
+  </mat-tab>
+  <mat-tab label="Ajouter">
+    <div class="content">
+      <app-edit-medium [medium]="editMedium"
+                       [selected]="selected"
+                       [error]="editError"
+                       (parent)="exec ($event)">
+      </app-edit-medium>
+    </div>
+  </mat-tab>
+</mat-tab-group>
