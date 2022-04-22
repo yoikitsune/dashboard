@@ -9,7 +9,6 @@ import { first, throttle } from 'rxjs/operators';
 export class MediaService {
   media: { [key:string]: Medium } = {};
   update$:Subject<null> = new Subject ();
-  oldMediums:string[] = [];
 
   constructor(public webSocket: WebSocketService) { }
 
@@ -19,8 +18,6 @@ export class MediaService {
       medium = new Medium (data.url, this);
       this.media [data.url] = medium;
     }
-    else
-      this.oldMediums.splice (this.oldMediums.indexOf (medium.url), 1);
 
     Object.keys (data).forEach((element: string) => {
       if (element in medium) {
@@ -37,32 +34,45 @@ export class MediaService {
     ).pipe (first ());
   }
 
-  getList () {
-    return new Observable (sub => {
-      this.webSocket.createRequest ({
-        command : "download",
-        method : "getList"
-      }).subscribe ({
-        next : (data:any) => {
-          this.oldMediums = Object.keys (this.media);
-          for (let url in data.data) {
-            this._register (data.data[url]);
-          }
-          this.oldMediums.forEach(element => {
-            delete this.media [element];
-          });
-          sub.next ();
-          this.update$.next (null);
-          console.log (this.media);
-        },
-        error : (message:string) => {
-          console.log ("getList error : " + message);
-          sub.error (message);
-        },
-        complete : () => {
-          console.log ("getList complete");
+  loadSync () {
+    let sub$:any;
+    let actions = {
+      "init" : (media: { [key:string]: Medium }) => {
+        this.media = {};
+        for (let url in media) {
+          this._register (media[url]);
         }
-      });
+      },
+      "add" : (medium:Medium) => {
+        this._register (medium);
+      },
+      "change" : (medium:Medium) => {
+        this.media[medium.url] = medium;
+      },
+      "delete" : (url:string) => {
+        delete this.media[url];
+      }
+    }
+    this.webSocket.subscribe ({
+      open : () => {
+        sub$ = this.webSocket.createRequest ({
+          command : "download",
+          method : "loadSync"
+        }).subscribe ({
+          next : (response:any) => {
+            actions [response.action](response.data);
+          },
+          error : (message:string) => {
+            console.log ("getList error : " + message);
+          },
+          complete : () => {
+            console.log ("getList complete");
+          }
+        });
+      },
+      close : () => {
+        sub$ && sub$.unsubscribe ();
+      }
     })
   }
 

@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { WebSocketService } from "../websocket.service";
 import { MediaService, Medium } from "../media.service";
 import { FormControl } from '@angular/forms';
-import { Observable } from "rxjs";
+
 @Component({
   selector: 'app-video-downloader',
   templateUrl: './video-downloader.component.html',
@@ -13,23 +12,11 @@ export class VideoDownloaderComponent implements OnInit, ChildMethods {
   editError:string|null = null;
   output:string = "";
   selected = new FormControl(0);
-  mediaList:any = null;
 
-  constructor(private webSocket: WebSocketService, public media: MediaService) { }
+  constructor(public media: MediaService) { }
 
   ngOnInit(): void {
-    let sub$:any;
-    this.webSocket.subscribe ({
-      open : () => {
-        sub$ = this.media.getList().subscribe (()=>{
-          this.mediaList = this.media.media;
-        });
-      },
-      close : () => {
-        sub$ && sub$.unsubscribe ();
-      }
-    })
-
+    this.media.loadSync ();
   }
 
   tabChanged (id:number) {
@@ -42,7 +29,7 @@ export class VideoDownloaderComponent implements OnInit, ChildMethods {
   add (url:string) {
     this.media.add(url).subscribe ({
       error : error => {
-        this.editError = error.data;
+        this.editError = error;
       },
       complete : () => {
         this.editMedium = this.media.get (url);

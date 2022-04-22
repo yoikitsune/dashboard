@@ -45,7 +45,7 @@ export class EditMediumComponent implements OnInit {
       this.msgCtrl.setValue (this.medium.url);
       this.dataSource.data = [BEST_AUDIO_FORMAT, ...this.medium.formats];
     }
-    else
+    else if (!this.error)
       this.msgCtrl.setValue ("");
   }
 

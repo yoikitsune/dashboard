@@ -25,10 +25,10 @@ export class WebSocketService {
         this.connection$ = ws$;
         this.status$.next ("open");
       },
-      others : (data:any) => {
-        var request = this.requests [data.id];
+      others : (response:any) => {
+        var request = this.requests [response.id];
         if (request) {
-          request [ data.type ] (data);
+          request [ response.type ] (response.data);
         }
       }
     }
@@ -73,7 +73,7 @@ export class WebSocketService {
   }
 
   getSync (path:string, events:{[key:string]:Function}) {
-    
+
   }
 
   subscribe (params:{ open ?: Function, close ?: Function}) {
