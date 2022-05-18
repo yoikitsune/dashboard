@@ -2,13 +2,6 @@ import { Component, EventEmitter, Input, Output, OnInit, OnChanges } from '@angu
 import { FormControl } from '@angular/forms';
 import {MatTableDataSource} from '@angular/material/table';
 
-const BEST_AUDIO_FORMAT =  {
-  "resolution" : "Meilleure piste audio",
-  "type" : "audio",
-  "format_id" : "__special__bestaudio"
-};
-
-
 @Component({
   selector: 'app-edit-medium',
   templateUrl: './edit-medium.component.html',
@@ -43,7 +36,15 @@ export class EditMediumComponent implements OnInit {
     if (this.medium) {
       this.waiting = false;
       this.msgCtrl.setValue (this.medium.url);
-      this.dataSource.data = [BEST_AUDIO_FORMAT, ...this.medium.formats];
+      this.medium.formats.sort ((a,b) => {
+        let aRes = a.resolution.indexOf('video_only') != -1
+        let bRes = b.resolution.indexOf('video_only') != -1
+        if (aRes)
+          return bRes?0:1;
+        else
+          return bRes?-1:0;
+      })
+      this.dataSource.data = this.medium.formats;
     }
     else if (!this.error)
       this.msgCtrl.setValue ("");

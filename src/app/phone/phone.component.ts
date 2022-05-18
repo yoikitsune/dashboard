@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Pipe, PipeTransform } from '@angular/core';
 import { PhoneService } from "../phone.service";
 import { filter, switchMap } from "rxjs/operators";
 import { Observable } from 'rxjs';
@@ -9,16 +9,14 @@ import { Observable } from 'rxjs';
   styleUrls: ['./phone.component.css']
 })
 export class PhoneComponent implements OnInit {
-  phone:any = null;
 
   constructor(public phoneService:PhoneService) { }
 
   ngOnInit(): void {
+    this.phoneService.loadSync ();
   }
 
-  getPhone () {
-    return this.phoneService.getPhone ().subscribe (phone => {
-      this.phone = phone;
-    });
+  log (val) {
+    console.log (val);
   }
 }

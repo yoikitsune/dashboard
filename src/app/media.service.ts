@@ -1,24 +1,23 @@
 import { Injectable } from '@angular/core';
 import { WebSocketService } from "./websocket.service";
-import { Observable, Subject, BehaviorSubject, concat, interval } from 'rxjs';
-import { first, throttle } from 'rxjs/operators';
+import { Observable, Subject, BehaviorSubject, concat } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MediaService {
   media: { [key:string]: Medium } = {};
-  update$:Subject<null> = new Subject ();
 
   constructor(public webSocket: WebSocketService) { }
 
   _register (data:Medium) {
-    let medium:Medium = this.media [data.url];
-    if (!medium) {
-      medium = new Medium (data.url, this);
-      this.media [data.url] = medium;
-    }
+    this.media [data.url] = new Medium (data.url, this);
+    this._update (data)
+  }
 
+  _update (data:Medium) {
+    let medium:Medium = this.media [data.url];
     Object.keys (data).forEach((element: string) => {
       if (element in medium) {
         let prop = element as (keyof typeof medium & keyof typeof element);
@@ -27,12 +26,12 @@ export class MediaService {
     });
   }
 
-  _waitForUpdate (observable:Observable<any>) {
+  /*_waitForUpdate (observable:Observable<any>) {
     return concat (
       observable,
       this.update$.pipe (first())
     ).pipe (first ());
-  }
+  }*/
 
   loadSync () {
     let sub$:any;
@@ -47,7 +46,7 @@ export class MediaService {
         this._register (medium);
       },
       "change" : (medium:Medium) => {
-        this.media[medium.url] = medium;
+        this._update (medium);
       },
       "delete" : (url:string) => {
         delete this.media[url];
@@ -71,17 +70,18 @@ export class MediaService {
         });
       },
       close : () => {
+        this.media = {};
         sub$ && sub$.unsubscribe ();
       }
     })
   }
 
   add (url:string) {
-    return this._waitForUpdate (this.webSocket.createRequest ({
+    return this.webSocket.createRequest ({
       command : "download",
       method : "getInfos",
       params : [ url ],
-    }));
+    });
   }
 
   get (url:string) {
@@ -107,10 +107,8 @@ interface DownloadStatus {
 }
 
 export class Medium {
-  parent : MediaService;
   observers : { [key : string]: BehaviorSubject<string> } = {};
 
-  url:string;
   status:DownloadStatus = {
     state : "noformat",
     percentage : 0,
@@ -119,28 +117,14 @@ export class Medium {
     ETA : ""
   };
   formats:any [] = [];
-  format:any;
+  format:any = {};
   title:string = "";
   thumbnail:string = "";
+  file:string = "";
 
-  constructor(url:string, parent:MediaService)  {
+  constructor(public url:string, private parent:MediaService)  {
     this.url = url;
     this.parent = parent;
-  }
-
-  observe (prop : keyof Medium):Observable<string> {
-    if (!(prop in this.observers)) {
-      this.observers[prop] = new BehaviorSubject<any> (this[prop]);
-    }
-    return this.observers[prop];
-  }
-
-  set (prop : keyof Medium, value:any) {
-    let element = prop as (keyof typeof this & keyof typeof prop);
-    this [element] = value;
-    if (this.observers [prop]) {
-      this.observers [prop].next (value);
-    }
   }
 
   initDownload (format:any) {
@@ -149,8 +133,8 @@ export class Medium {
       method : "initDownload",
       params : [ this.url, format ]
     }).subscribe ({
-      complete: () => {
-        this.startDownload ();
+      error : (error) => {
+        console.log ("cannot start download", error)
       }
     });
   }
@@ -160,11 +144,7 @@ export class Medium {
       command : "download",
       method : "startDownload",
       params : [ this.url, this.format ]
-    }).pipe(throttle(() => interval(1000))).subscribe ({
-      next: (response:any) => {
-        this.set ('status', response.data);
-      }
-    });
+    }).subscribe ();
   }
 
   stopDownload () {

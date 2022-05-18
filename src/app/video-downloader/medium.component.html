@@ -3,6 +3,7 @@
   <div class="top" >
     <h3 class="title">{{medium.title}}</h3>
     <mat-icon (click)="media.delete(medium.url)" [inline]="true">delete</mat-icon>
+    <mat-icon *ngIf="fileCanBeCopied ()" (click)="copyToPhone()" [inline]="true">add_to_home_screen</mat-icon>
   </div>
   <mat-progress-bar mode="determinate" [value]="medium.status.percentage"></mat-progress-bar>
   <div [ngSwitch]="medium.status.state">
@@ -21,7 +22,15 @@
       <span class="action" (click)="medium.stopDownload()">Stopper</span>
       - Téléchargement de {{ medium.status.size }} - reste {{ medium.status.ETA }} - {{ medium.status.speed }}
     </p>
-    <p *ngSwitchCase="'downloaded'" class="state" >Téléchargement terminé</p>
+    <p *ngSwitchCase="'finalize'" class="state" >
+      <span class="action" (click)="medium.stopDownload()">Stopper</span>
+      - {{ medium.status.label }}
+    </p>
+    <p *ngSwitchCase="'downloaded'" class="state">Téléchargement terminé</p>
+    <p *ngSwitchCase="'error'" class="state error">
+      <span class="action" (click)="medium.startDownload()">Relancer</span>
+      - <span class="error">{{ medium.status.label }}</span>
+    </p>
   </div>
 
 </div>

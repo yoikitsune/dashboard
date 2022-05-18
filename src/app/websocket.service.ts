@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Observable, Subject, Subscriber } from 'rxjs';
 import { delay, tap, retryWhen } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,7 @@ export class WebSocketService {
       try {
         next = "first";
         ws$ = webSocket({
-          url :'ws://localhost:3000',
+          url :environment.wsAdress,
           closeObserver: {
             next : () => {
                 sub.error ("ws close");
@@ -70,10 +71,6 @@ export class WebSocketService {
       },
       complete : () => console.log ("ws end")
     });
-  }
-
-  getSync (path:string, events:{[key:string]:Function}) {
-
   }
 
   subscribe (params:{ open ?: Function, close ?: Function}) {

@@ -30,6 +30,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { EditMediumComponent } from './video-downloader/edit-medium.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { PhoneComponent } from './phone/phone.component';
+import { GetValuesPipe } from './get-values.pipe';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { PhoneComponent } from './phone/phone.component';
     MainComponent,
     MediumComponent,
     EditMediumComponent,
-    PhoneComponent
+    PhoneComponent,
+    GetValuesPipe
   ],
   imports: [
     BrowserModule,

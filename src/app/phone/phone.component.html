@@ -1,8 +1,34 @@
-<div *ngIf="phone; else close">
-  <p>open</p>
+<ng-template [ngIf]="phoneService.isPhoneConnected()" [ngIfElse]="noPhone">
+<div *ngFor="let phone of phoneService.phones | keyvalue" class="container" >
+  <p>{{ phone.value.id }} ({{ phone.value.status }})</p>
+  <div *ngFor="let process of phone.value.processes | getValues">
+    <div>
+      <div class="left">
+        <p>{{ process.file }}</p>
+        <p>{{ process.message }}</p>
+        {{ log (process.percentage) }}
+      </div>
+      <div class="right"><mat-progress-spinner
+        color="primary"
+        mode="determinate"
+        diameter="40"
+        [value]="+process.percentage">
+      </mat-progress-spinner></div>
+    </div>
+  </div>
+  <!--<p>Videos</p>
+  <p *ngFor="let file of phone.value.files.video">
+    {{ file }}
+  </p>
+  <p>Audios</p>
+  <p *ngFor="let file of phone.value.files.audio">
+    {{ file }}
+  </p>-->
 </div>
-<ng-template #close>
+</ng-template>
+
+<ng-template #noPhone>
   <div>
-    <p>close</p>
+    <p>Pas de téléphone</p>
   </div>
 </ng-template>

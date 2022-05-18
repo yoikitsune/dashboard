@@ -33,3 +33,7 @@ mat-icon {
   color : lightblue;
   cursor: pointer;
 }
+
+.error {
+  color : red;
+}

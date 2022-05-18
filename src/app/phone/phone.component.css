@@ -1,0 +1,19 @@
+.container {
+  padding-top : 10px;
+  height: 300px;
+  overflow: auto;
+}
+
+.left {
+  float : left;
+  width: calc(100% - 50px);
+}
+.left p {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.right {
+  float : right;
+}
