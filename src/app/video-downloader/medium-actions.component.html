@@ -1,0 +1,17 @@
+<ng-template [ngIf]="type=='mat-menu-item'" [ngIfElse]="default">
+  <button mat-menu-item
+    *ngFor="let action of actions"
+    (click)="action.action()">
+    <mat-icon>{{ action.icon }}</mat-icon>
+
+    <span>{{ action.name }}</span>
+  </button>
+</ng-template>
+<ng-template #default>
+  <div class="default">
+    <button *ngFor="let action of actions" (click)="action.action()">
+        <mat-icon>{{ action.icon }}</mat-icon>
+        <span>{{ action.name }}</span>
+    </button>
+  </div>
+</ng-template>

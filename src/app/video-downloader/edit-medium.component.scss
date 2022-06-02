@@ -1,0 +1,115 @@
+@use 'sass:map';
+
+@mixin theme($theme-or-color-config) { app-edit-medium {
+  $background: map.get($theme-or-color-config,background);
+  $primary: map.get($theme-or-color-config,primary);
+
+  .mat-button-toggle-appearance-standard {
+    background: map.get($background, selected-button);
+  }
+
+  .mat-button-toggle-checked {
+    background-color: map.get($background,selected-button);
+    &.mat-button-toggle-appearance-standard {
+      background-color: map.get($background,card);
+    }
+  }
+
+  .editor {
+    display: flex;
+    flex-direction: column;
+
+    .image {
+      background-color: black;
+      align-self: stretch;
+      text-align: center;
+
+      img {
+        max-height: 250px;
+      }
+    }
+
+    .main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 5px;
+
+      h2 {
+        margin-bottom : 2px;
+      }
+
+      a {
+        color : map.get($primary,300);
+      }
+    }
+  }
+}}
+
+//.mat-button-toggle-checked
+/*:host {
+  text-align: left;
+}
+mat-form-field {
+  width : 75%
+}
+.container {
+  display: flex;
+  flex-direction: column;
+}
+.leftside {
+  width: 250px;
+}
+
+mat-table {
+  width : 100%;
+}
+
+.spin {
+  align-self: stretch;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-spinner {
+  align-self: center;
+}
+
+.formats {
+  flex: 1;
+  display: flex;
+  overflow: auto;
+  max-height: 150px;
+}
+
+.box {
+    display: flex;
+    min-height: min-content;
+    flex-grow: 1;
+}
+
+
+.formats li button {
+  float : right;
+}
+
+:host ::ng-deep .mat-button-toggle-label-content {
+  line-height: 30px !important;
+}
+
+.mat-button-toggle-group {
+  align-self: flex-start;
+}
+
+:host ::ng-deep mat-header-row {
+  min-height: auto;
+}
+
+pre {
+  overflow-y: auto;
+  height: 150px;
+  font-size: 12px;
+  overflow-x: hidden;
+}
+*/

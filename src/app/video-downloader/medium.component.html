@@ -1,36 +1,35 @@
-<div class="leftside"><img src="{{ medium.thumbnail }}" height="52px"></div>
-<div class="main">
-  <div class="top" >
-    <h3 class="title">{{medium.title}}</h3>
-    <mat-icon (click)="media.delete(medium.url)" [inline]="true">delete</mat-icon>
-    <mat-icon *ngIf="fileCanBeCopied ()" (click)="copyToPhone()" [inline]="true">add_to_home_screen</mat-icon>
+<div class="medium">
+  <div class="content" [routerLink]="['./edit',medium.id]">
+    <img class="image" src="{{ medium.thumbnail }}" [routerLink]="['./edit',medium.id]">
+    <div class="main">
+      <h3>{{ medium.title }}</h3>
+      <app-medium-status
+        [status]="medium.status">
+      </app-medium-status>
+    </div>
   </div>
-  <mat-progress-bar mode="determinate" [value]="medium.status.percentage"></mat-progress-bar>
-  <div [ngSwitch]="medium.status.state">
-    <p *ngSwitchCase="'noformat'" class="state">
-      <span class="action" (click)="edit()">Selectionner</span> - Pas de format selectionné
-    </p>
-    <p *ngSwitchCase="'init'" class="state" >
-      <span class="action" (click)="medium.stopDownload()">Stopper</span>
-      - {{ medium.status.label }}
-    </p>
-    <p *ngSwitchCase="'paused'" class="state" >
-      <span class="action" (click)="medium.startDownload()">Continuer</span>
-      - Téléchargement en pause ( {{medium.status.percentage}}% )
-    </p>
-    <p *ngSwitchCase="'downloading'" class="state" >
-      <span class="action" (click)="medium.stopDownload()">Stopper</span>
-      - Téléchargement de {{ medium.status.size }} - reste {{ medium.status.ETA }} - {{ medium.status.speed }}
-    </p>
-    <p *ngSwitchCase="'finalize'" class="state" >
-      <span class="action" (click)="medium.stopDownload()">Stopper</span>
-      - {{ medium.status.label }}
-    </p>
-    <p *ngSwitchCase="'downloaded'" class="state">Téléchargement terminé</p>
-    <p *ngSwitchCase="'error'" class="state error">
-      <span class="action" (click)="medium.startDownload()">Relancer</span>
-      - <span class="error">{{ medium.status.label }}</span>
-    </p>
+  <!-- <div class="menu">
+    <button (click)="delete()">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div> -->
+  <div class="menu">
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <!-- <button mat-menu-item (click)="delete()">
+        <mat-icon>delete</mat-icon>
+        <span>Supprimer</span>
+      </button> -->
+      <ng-template matMenuContent>
+        <app-medium-actions
+          [id]="medium.id"
+          [status]="medium.status"
+          [type]="'mat-menu-item'">
+        </app-medium-actions>
+      </ng-template>
+    </mat-menu>
   </div>
-
 </div>
+<mat-divider></mat-divider>

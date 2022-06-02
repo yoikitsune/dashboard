@@ -1,79 +1,19 @@
 import { Injectable } from '@angular/core';
-import { WebSocketService } from "./websocket.service";
+import { WebSocketService, WebSocketData, Datum } from "./websocket.service";
 import { Observable, Subject, BehaviorSubject, concat } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
-export class MediaService {
-  media: { [key:string]: Medium } = {};
+export class MediaService extends WebSocketData<Medium> {
 
-  constructor(public webSocket: WebSocketService) { }
-
-  _register (data:Medium) {
-    this.media [data.url] = new Medium (data.url, this);
-    this._update (data)
+  constructor(webSocket: WebSocketService) {
+    super (webSocket, "download");
   }
 
-  _update (data:Medium) {
-    let medium:Medium = this.media [data.url];
-    Object.keys (data).forEach((element: string) => {
-      if (element in medium) {
-        let prop = element as (keyof typeof medium & keyof typeof element);
-        medium [prop] = data [prop];
-      }
-    });
-  }
-
-  /*_waitForUpdate (observable:Observable<any>) {
-    return concat (
-      observable,
-      this.update$.pipe (first())
-    ).pipe (first ());
-  }*/
-
-  loadSync () {
-    let sub$:any;
-    let actions = {
-      "init" : (media: { [key:string]: Medium }) => {
-        this.media = {};
-        for (let url in media) {
-          this._register (media[url]);
-        }
-      },
-      "add" : (medium:Medium) => {
-        this._register (medium);
-      },
-      "change" : (medium:Medium) => {
-        this._update (medium);
-      },
-      "delete" : (url:string) => {
-        delete this.media[url];
-      }
-    }
-    this.webSocket.subscribe ({
-      open : () => {
-        sub$ = this.webSocket.createRequest ({
-          command : "download",
-          method : "loadSync"
-        }).subscribe ({
-          next : (response:any) => {
-            actions [response.action](response.data);
-          },
-          error : (message:string) => {
-            console.log ("getList error : " + message);
-          },
-          complete : () => {
-            console.log ("getList complete");
-          }
-        });
-      },
-      close : () => {
-        this.media = {};
-        sub$ && sub$.unsubscribe ();
-      }
-    })
+  createDatum (id:string, parent:WebSocketData<Medium>):Medium {
+    return new Medium (id, parent);
   }
 
   add (url:string) {
@@ -84,15 +24,15 @@ export class MediaService {
     });
   }
 
-  get (url:string) {
-    return this.media [url];
+  get (id:string) {
+    return this.data [id];
   }
 
-  delete (url:string) {
+  delete (id:string) {
     this.webSocket.createRequest ({
       command : "download",
       method : "delete",
-      params : [ url ]
+      params : [ id ]
     }).subscribe ();
   }
 
@@ -106,8 +46,8 @@ interface DownloadStatus {
   ETA : string
 }
 
-export class Medium {
-  observers : { [key : string]: BehaviorSubject<string> } = {};
+export class Medium extends Datum {
+  // observers : { [key : string]: BehaviorSubject<string> } = {};
 
   status:DownloadStatus = {
     state : "noformat",
@@ -122,16 +62,11 @@ export class Medium {
   thumbnail:string = "";
   file:string = "";
 
-  constructor(public url:string, private parent:MediaService)  {
-    this.url = url;
-    this.parent = parent;
-  }
-
   initDownload (format:any) {
     this.parent.webSocket.createRequest ({
       command : "download",
       method : "initDownload",
-      params : [ this.url, format ]
+      params : [ this.id, format ]
     }).subscribe ({
       error : (error) => {
         console.log ("cannot start download", error)
@@ -143,7 +78,7 @@ export class Medium {
     this.parent.webSocket.createRequest ({
       command : "download",
       method : "startDownload",
-      params : [ this.url, this.format ]
+      params : [ this.id, this.format ]
     }).subscribe ();
   }
 
@@ -151,7 +86,11 @@ export class Medium {
     this.parent.webSocket.createRequest ({
       command : "download",
       method : "stopDownload",
-      params : [ this.url ]
+      params : [ this.id ]
     }).subscribe ();
+  }
+
+  delete () {
+    (this.parent as MediaService).delete (this.id);
   }
 }

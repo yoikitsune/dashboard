@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { Observable, Subject, Subscriber } from 'rxjs';
+import { Observable, BehaviorSubject, Subject, Subscriber } from 'rxjs';
 import { delay, tap, retryWhen } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 
@@ -8,7 +8,7 @@ import { environment } from '../environments/environment';
   providedIn: 'root'
 })
 export class WebSocketService {
-  status$:Subject<any> = new Subject ();
+  status$:BehaviorSubject<string> = new BehaviorSubject ("close");
   connection$: WebSocketSubject<any>|null = null;
   requests : any = {};
   RETRY_SECONDS = 10;
@@ -22,7 +22,7 @@ export class WebSocketService {
       first : (clientId:any) => {
         this.clientId = clientId;
         next = "others";
-        console.log ("ws connected with clientId " + clientId);
+        // console.log ("ws connected with clientId " + clientId);
         this.connection$ = ws$;
         this.status$.next ("open");
       },
@@ -37,7 +37,7 @@ export class WebSocketService {
       try {
         next = "first";
         ws$ = webSocket({
-          url :environment.wsAdress,
+          url :`ws://${window.location.hostname}:${environment.wsPort}`,
           closeObserver: {
             next : () => {
                 sub.error ("ws close");
@@ -111,6 +111,91 @@ export class WebSocketService {
 
   ngOnDestroy() {
     this.closeConnection();
+  }
+}
+
+export class Datum {
+  change$:Subject<string> = new Subject ();
+  constructor(
+    public id:string,
+    protected parent:WebSocketData<Datum>
+  ) {}
+}
+
+export abstract class WebSocketData<T extends Datum> {
+  data: { [key:string]: T } = {};
+  data$: BehaviorSubject<any> = new BehaviorSubject ({});
+
+  abstract createDatum (id:string, parent:WebSocketData<any>)
+
+  constructor(public webSocket: WebSocketService, public command:string) {
+  }
+
+  _register (data) {
+    return Object.assign (this.createDatum (data.id, this), data);
+    //this._update (data)
+  }
+
+  _update (data) {
+    let datum:T = this.data [data.id];
+    Object.keys (data).forEach((element: string) => {
+      if (element in datum) {
+        let prop = element as (keyof typeof datum & keyof typeof element);
+        datum [prop] = data [prop];
+      }
+    });
+  }
+
+  loadSync () {
+    let state$:Subject<boolean> = new Subject ();
+    let sub$:any;
+    let actions = {
+      "init" : (data: { [key:string]: keyof T }) => {
+        let newData: typeof this.data = {};
+        for (let id in data) {
+          newData[id] = this._register (data[id]);
+        }
+        this.data = newData;
+        state$.next (true);
+        this.data$.next (this.data);
+      },
+      "add" : (data) => {
+        this.data[data.id] = this._register (data);
+        this.data$.next (this.data);
+      },
+      "change" : (data: { [key:string]: keyof Datum  }) => {
+        this._update (data);
+        this.data [data['id']].change$.next ("");
+      },
+      "delete" : (id:string) => {
+        delete this.data[id];
+        this.data$.next (this.data);
+      }
+    }
+    this.webSocket.subscribe ({
+      open : () => {
+        sub$ = this.webSocket.createRequest ({
+          command : this.command,
+          method : "loadSync"
+        }).subscribe ({
+          next : (response:any) => {
+            actions [response.action](response.data);
+          },
+          error : (message:string) => {
+            console.log ("loadSync error : " + message);
+          },
+          complete : () => {
+            console.log ("loadSync complete");
+          }
+        });
+      },
+      close : () => {
+        state$.next (false);
+        this.data = {};
+        sub$ && sub$.unsubscribe ();
+      }
+    });
+    return state$.asObservable();
   }
 }
 

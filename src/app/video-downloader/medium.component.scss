@@ -1,0 +1,73 @@
+@use 'sass:map';
+
+@mixin theme($theme-or-color-config) {
+  $background: map.get($theme-or-color-config,background);
+
+  app-medium {
+    .medium {
+      display : flex;
+      align-items: center;
+      justify-content: space-between;
+
+      &:hover {
+        background: map.get($background, card);
+      }
+    }
+
+    .content {
+      display : flex;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .main {
+      flex: 1;
+    }
+
+    .main h3 {
+      line-height: 20px;
+      margin : 10px 0 0 0;
+    }
+
+    .image {
+      object-fit: cover;
+      margin: 5px 10px 5px 5px;
+      width : 64px;
+      height : 64px;
+      align-self: center;
+    }
+
+    .menu:hover {
+      color: map.get($background, selected-button);
+    }
+  }
+}
+
+/*mat-icon {
+}
+
+.top mat-icon {
+  float : right;
+}
+.main  {
+  clear : both;
+  text-align: left;
+}
+
+.title {
+/*  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;*/
+/*  margin-bottom: 0;
+  line-height: 22px;
+}
+
+.action {
+  color : lightblue;
+  cursor: pointer;
+}
+
+.error {
+  color : red;
+}
+*/

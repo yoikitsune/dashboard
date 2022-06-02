@@ -1,12 +1,12 @@
 <ng-template [ngIf]="phoneService.isPhoneConnected()" [ngIfElse]="noPhone">
-<div *ngFor="let phone of phoneService.phones | keyvalue" class="container" >
+<div *ngFor="let phone of phoneService.data | keyvalue" class="container" >
   <p>{{ phone.value.id }} ({{ phone.value.status }})</p>
   <div *ngFor="let process of phone.value.processes | getValues">
     <div>
       <div class="left">
         <p>{{ process.file }}</p>
         <p>{{ process.message }}</p>
-        {{ log (process.percentage) }}
+        <!-- {{ log (process.percentage) }} -->
       </div>
       <div class="right"><mat-progress-spinner
         color="primary"

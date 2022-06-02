@@ -1,2 +1,27 @@
-<app-toolbar></app-toolbar>
-<app-main></app-main>
+<div class="example-container">
+  <ng-template [ngIf]="isOpened$ | async" [ngIfElse]="loading">
+    <mat-toolbar color="primary" class="example-toolbar">
+      <button mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
+      <button mat-icon-button routerLink="/download/add"><mat-icon>add</mat-icon></button>
+      <h1 class="example-app-name">{{ titleService.getTitle() }}</h1>
+    </mat-toolbar>
+
+    <mat-sidenav-container class="example-sidenav-container">
+      <mat-sidenav #snav mode="over">
+        <mat-nav-list>
+          <a mat-list-item routerLink="/download" routerLinkActive="active" (click)="snav.toggle()">Téléchargements</a>
+          <a mat-list-item routerLink="/phone" routerLinkActive="active" (click)="snav.toggle()">Mobile</a>
+        </mat-nav-list>
+      </mat-sidenav>
+
+      <mat-sidenav-content>
+        <router-outlet></router-outlet>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </ng-template>
+  <ng-template #loading>
+    <div class="loading-container">
+      <mat-spinner color="primary" diameter="50"></mat-spinner>
+    </div>
+  </ng-template>
+</div>

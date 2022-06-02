@@ -1,18 +1,25 @@
 import { Injectable } from '@angular/core';
-import { WebSocketService } from "./websocket.service";
+import { WebSocketService, WebSocketData, Datum } from "./websocket.service";
 import { Observable, Subject, BehaviorSubject, concat, interval } from 'rxjs';
 import { first, throttle } from 'rxjs/operators';
-
+import { MediaService, Medium } from "./media.service";
 @Injectable({
   providedIn: 'root'
 })
-export class PhoneService {
-  phones: { [key:string]: Phone } = {};
+export class PhoneService  extends WebSocketData<Phone>{
 
-  constructor(public webSocket: WebSocketService) {
+  constructor(
+    webSocket: WebSocketService,
+    public media:MediaService
+  ) {
+    super (webSocket, "phone");
   }
 
-  _register (data:Phone) {
+  createDatum (id:string, parent:WebSocketData<Phone>):Phone {
+    return new Phone (id, parent);
+  }
+
+/*  _register (data:Phone) {
     this.phones [data.id] = new Phone (data.id, this);
     this._update (data)
   }
@@ -68,10 +75,10 @@ export class PhoneService {
         sub$ && sub$.unsubscribe ();
       }
     })
-  }
+  }*/
 
   isPhoneConnected () : boolean {
-    return Object.entries(this.phones).length !== 0;
+    return Object.keys(this.data).length !== 0;
   }
 
   copy (type:string, file:string) {
@@ -79,7 +86,7 @@ export class PhoneService {
     this.webSocket.createRequest ({
       command : "phone",
       method : "copy",
-      params : [Object.keys(this.phones)[0], type, file]
+      params : [Object.keys(this.data)[0], type, file]
     }).subscribe ({
       complete : () => {
         subject.complete ()
@@ -92,7 +99,7 @@ export class PhoneService {
     this.webSocket.createRequest ({
       command : "phone",
       method : "list",
-      params : [Object.keys(this.phones)[0], type]
+      params : [Object.keys(this.data)[0], type]
     }).subscribe ({
       next : (data) => {
         console.log (data);
@@ -107,12 +114,34 @@ export class PhoneService {
   }
 }
 
-export class Phone {
+export class Phone extends Datum {
   status:string = "offline";
   files:Files = new Files ();
+  copyInProgress:boolean = false;
   processes:{ [key:string]:any } = {};
 
-  constructor (public id:string, public parent:PhoneService) {}
+  fileCanBeCopied (medium:Medium) {
+    if (this.copyInProgress) return false;
+    if (medium.status.state != 'downloaded'
+     || !(this.parent as PhoneService).isPhoneConnected())
+      return false;
+    else {
+      let phone = this.parent.data[Object.keys(this.parent.data)[0]] as Phone;
+      return phone.files[medium.format.type].indexOf (medium.file) == -1;
+    }
+  }
+
+  copy (medium:Medium) {
+    this.copyInProgress = true;
+    (this.parent as PhoneService).copy (medium.format.type, medium.file).subscribe ({
+      error : error => {
+        this.copyInProgress = false;
+      },
+      complete : () => {
+        this.copyInProgress = false;
+      }
+    });
+  }
 }
 
 class Files {

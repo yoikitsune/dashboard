@@ -13,7 +13,6 @@ export class PhoneComponent implements OnInit {
   constructor(public phoneService:PhoneService) { }
 
   ngOnInit(): void {
-    this.phoneService.loadSync ();
   }
 
   log (val) {

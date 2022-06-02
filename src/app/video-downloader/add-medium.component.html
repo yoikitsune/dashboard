@@ -1,0 +1,22 @@
+<!--<div class="container">-->
+    <form>
+      <mat-form-field>
+        <mat-label>Url</mat-label>
+        <input matInput name="url" placeholder="Url..." [formControl]="msgCtrl"/>
+      </mat-form-field>
+      <button mat-button (click)="add()">Récupérer</button>
+    </form>
+    <div *ngIf="error else waitingBlock">
+      <pre>{{error}}</pre>
+    </div>
+    <ng-template #waitingBlock>
+      <div class="spin" *ngIf="waiting">
+        <mat-spinner color="accent" diameter="50"></mat-spinner>
+      </div>
+    </ng-template>
+<!--  </div>
+  <ng-template #elseBlock>
+  </ng-template>
+
+</div>
+-->

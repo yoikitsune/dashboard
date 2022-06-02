@@ -1,0 +1,44 @@
+@use "@angular/material" as mat;
+@use './app/video-downloader/edit-medium.component' as edit;
+@use './app/video-downloader/medium.component' as medium;
+@use './app/video-downloader/medium-actions.component' as action;
+
+@include mat.core();
+
+$my-app-primary: mat.define-palette(mat.$indigo-palette);
+$my-app-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$my-app-warn: mat.define-palette(mat.$red-palette);
+
+$my-app-theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: $my-app-primary,
+      accent: $my-app-accent,
+      warn: $my-app-warn,
+    )
+  )
+);
+
+@include mat.core-theme($my-app-theme);
+@include mat.sidenav-theme($my-app-theme);
+@include mat.tabs-theme($my-app-theme);
+@include mat.progress-bar-theme($my-app-theme);
+@include mat.button-theme($my-app-theme);
+@include mat.progress-spinner-theme($my-app-theme);
+@include mat.input-theme($my-app-theme);
+@include mat.form-field-theme($my-app-theme);
+@include mat.button-toggle-theme($my-app-theme);
+@include mat.table-theme($my-app-theme);
+
+@include edit.theme ($my-app-theme);
+@include medium.theme ($my-app-theme);
+@include action.theme ($my-app-theme);
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

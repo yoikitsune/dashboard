@@ -1,0 +1,26 @@
+<mat-progress-bar mode="determinate" [value]="status.percentage"></mat-progress-bar>
+<div [ngSwitch]="status.state">
+  <p *ngSwitchCase="'noformat'" class="state">
+    Pas de format selectionné
+  </p>
+  <p *ngSwitchCase="'init'" class="state" >
+    {{ status.label }}
+  </p>
+  <p *ngSwitchCase="'paused'" class="state" >
+    Téléchargement en pause ( {{ status.percentage }}% )
+  </p>
+  <p *ngSwitchCase="'downloading'" class="state" >
+      Téléchargement de {{ status.size }} -
+      reste {{ status.ETA }} -
+      {{ status.speed }}
+  </p>
+  <p *ngSwitchCase="'finalize'" class="state" >
+    {{ status.label }}
+  </p>
+  <p *ngSwitchCase="'downloaded'" class="state">
+    Téléchargement terminé
+  </p>
+  <p *ngSwitchCase="'error'" class="state error">
+    <span class="error">{{ status.label }}</span>
+  </p>
+</div>

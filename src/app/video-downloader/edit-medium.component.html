@@ -1,73 +1,67 @@
-<div class="container">
-  <form>
-    <mat-form-field>
-      <mat-label>Url</mat-label>
-      <input matInput name="url" placeholder="Url..." [formControl]="msgCtrl">
-    </mat-form-field>
-    <button mat-button (click)="add()">Récupérer</button>
-  </form>
-  <div *ngIf="medium; else elseBlock">
-    <h3>{{ medium.title }}</h3>
-    <div class="editor">
-      <div class="leftside">
-        <img source src="{{ medium.thumbnail }}" width="250px">
-      </div>
-      <div class="main">
-        <mat-button-toggle-group name="mediaType"
-                  [value]="formatFilter.value"
-                  (change)="formatFilter.setValue ($event.value)"
-                  aria-label="Type de média">
-          <mat-button-toggle value="video">Vidéos</mat-button-toggle>
-          <mat-button-toggle value="audio">Audios</mat-button-toggle>
-        </mat-button-toggle-group>
-        <div class="formats">
-          <div class="box">
-            <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+<mat-icon routerLink="/download">keyboard_backspace</mat-icon>
+<div class="editor">
+  <div class="image">
+    <img source src="{{ medium.thumbnail }}">
+  </div>
+  <div class="main">
+    <h2>{{ medium.title }}</h2>
+    <a href="{{ medium.url }}" target="_blank">{{ medium.url }}</a>
+    <app-medium-actions
+      [id]="medium.id"
+      [status]="medium.status"
+      [delete]="delete" [copy]="copy">
+    </app-medium-actions>
+    <app-medium-status
+      [status]="medium.status">
+    </app-medium-status>
+    <ng-template [ngIf]="medium.format.format_id" [ngIfElse]="formats">
+      <p>{{ medium.format.type }} {{ medium.format.ext }} {{ medium.format.resolution }}</p>
+      <p>{{ medium.format.filesize | filesize }}</p>
+    </ng-template>
+    <ng-template #formats>
+      <mat-button-toggle-group name="mediaType"
+                [value]="formatFilter.value"
+                (change)="formatFilter.setValue ($event.value)"
+                aria-label="Type de média">
+        <mat-button-toggle value="video">Vidéos</mat-button-toggle>
+        <mat-button-toggle value="audio">Audios</mat-button-toggle>
+      </mat-button-toggle-group>
+      <div class="formats">
+        <div class="box">
+          <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
-              <ng-container matColumnDef="resolution">
-                <mat-header-cell *matHeaderCellDef mat-sort-header>Res</mat-header-cell>
-                <mat-cell *matCellDef="let element"> {{ element.resolution }} </mat-cell>
-              </ng-container>
+            <ng-container matColumnDef="resolution">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Res</mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{ element.resolution }} </mat-cell>
+            </ng-container>
 
-              <ng-container matColumnDef="type">
-                <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
-                <mat-cell *matCellDef="let element"> {{ element.ext }} </mat-cell>
-              </ng-container>
+            <ng-container matColumnDef="type">
+              <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{ element.ext }} </mat-cell>
+            </ng-container>
 
-              <ng-container matColumnDef="filesize">
-                <mat-header-cell *matHeaderCellDef>Taille</mat-header-cell>
-                <mat-cell *matCellDef="let element"> {{ (element.filesize || 0) | filesize }} </mat-cell>
-              </ng-container>
+            <ng-container matColumnDef="filesize">
+              <mat-header-cell *matHeaderCellDef>Taille</mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{ (element.filesize || 0) | filesize }} </mat-cell>
+            </ng-container>
 
-              <ng-container matColumnDef="action">
-                <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
-                <mat-cell *matCellDef="let element">
-                  <button mat-icon-button
-                      color="basic"
-                      aria-label="Télécharger la vidéo"
-                      (click)="initDownload (element)">
-                    <mat-icon>cloud_download</mat-icon>
-                  </button>
-                </mat-cell>
-              </ng-container>
+            <ng-container matColumnDef="action">
+              <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+              <mat-cell *matCellDef="let element">
+                <button mat-icon-button
+                    color="basic"
+                    aria-label="Télécharger la vidéo"
+                    (click)="initDownload (element)">
+                  <mat-icon>cloud_download</mat-icon>
+                </button>
+              </mat-cell>
+            </ng-container>
 
-              <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-              <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-            </mat-table>
-          </div>
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+          </mat-table>
         </div>
       </div>
-    </div>
-  </div>
-  <ng-template #elseBlock>
-    <div *ngIf="error else waitingBlock">
-      <pre>{{error}}</pre>
-    </div>
-    <ng-template #waitingBlock>
-      <div class="spin" *ngIf="waiting">
-        <mat-spinner color="accent" diameter="50"></mat-spinner>
-      </div>
     </ng-template>
-  </ng-template>
-
+  </div>
 </div>

@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   //wsAdress : "ws://10.42.0.1:3000/"
-  wsAdress : "ws://localhost:3000/"
+  wsPort : "3000"
 };
 
 /*
